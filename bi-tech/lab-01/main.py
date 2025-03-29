@@ -1,6 +1,15 @@
 import pandas as pd
 
-df = pd.read_csv('data/data_wine.csv', sep=';')
+# funcion para detectar el delimitador del archivo CSV
+# Se asume que el archivo tiene un delimitador de coma o punto y coma.
+def detect_delimiter(filepath):
+    with open(filepath, 'r', encoding='utf-8') as file:
+        line = file.readline()
+    return ',' if line.count(',') >= line.count(';') else ';'
+
+# Se solicita al usuario el nombre del archivo CSV
+filename = input("Ingrese el nombre del archivo: ")
+df = pd.read_csv(f"data/{filename}.csv", sep=detect_delimiter(f"data/{filename}.csv")) 
 
 print("Columnas disponibles:")
 print(df.columns.tolist())
