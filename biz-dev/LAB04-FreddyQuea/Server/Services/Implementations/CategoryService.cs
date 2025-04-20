@@ -24,7 +24,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ICategory
     public async Task<ServiceResponse> AddAsync(CreateCategory category)
     {
         var entity = mapper.Map<Category>(category);
-        await unitOfWork.Categories.AddAsync(entity);
+        unitOfWork.Categories.AddAsync(entity);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -37,7 +37,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ICategory
         var existing = await unitOfWork.Categories.GetByIdAsync(id);
 
         mapper.Map(category, existing);
-        await unitOfWork.Categories.UpdateAsync(existing);
+        if (existing != null) unitOfWork.Categories.UpdateAsync(existing);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -49,7 +49,7 @@ public class CategoryService(IUnitOfWork unitOfWork, IMapper mapper) : ICategory
     {
         var existing = await unitOfWork.Categories.GetByIdAsync(id);
 
-        await unitOfWork.Categories.DeleteAsync(existing.CategoryId);
+        if (existing != null) unitOfWork.Categories.DeleteAsync(existing.CategoryId);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0

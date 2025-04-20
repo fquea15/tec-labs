@@ -24,7 +24,7 @@ public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper) : ICustomer
     public async Task<ServiceResponse> AddAsync(CreateCustomer customer)
     {
         var entity = mapper.Map<Customer>(customer);
-        await unitOfWork.Customers.AddAsync(entity);
+        unitOfWork.Customers.AddAsync(entity);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -37,7 +37,7 @@ public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper) : ICustomer
         var existing = await unitOfWork.Customers.GetByIdAsync(id);
 
         mapper.Map(customer, existing);
-        await unitOfWork.Customers.UpdateAsync(existing);
+        if (existing != null) unitOfWork.Customers.UpdateAsync(existing);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -49,7 +49,7 @@ public class CustomerService(IUnitOfWork unitOfWork, IMapper mapper) : ICustomer
     {
         var existing = await unitOfWork.Customers.GetByIdAsync(id);
 
-        await unitOfWork.Customers.DeleteAsync(existing.CustomerId);
+        if (existing != null) unitOfWork.Customers.DeleteAsync(existing.CustomerId);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0

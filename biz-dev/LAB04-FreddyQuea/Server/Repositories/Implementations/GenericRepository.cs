@@ -17,24 +17,22 @@ public class GenericRepository<T>(ApplicationDbContext context) : IGenericReposi
         return result;
     }
 
-    public async Task<int> AddAsync(T entity)
+    public void AddAsync(T entity)
     {
         context.Set<T>().Add(entity);
-        return await context.SaveChangesAsync();
     }
 
-    public async Task<int> UpdateAsync(T entity)
+    public void UpdateAsync(T entity)
     {
         context.Set<T>().Update(entity);
-        return await context.SaveChangesAsync();
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public void DeleteAsync(int id)
     {
-        var entity = await context.Set<T>().FindAsync(id);
-        if (entity is null) return 0;
-
-        context.Set<T>().Remove(entity);
-        return await context.SaveChangesAsync();
+        var entity = context.Set<T>().Find(id);
+        if (entity != null)
+        {
+            context.Set<T>().Remove(entity);
+        }
     }
 }

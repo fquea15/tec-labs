@@ -24,7 +24,7 @@ public class AddressService(IUnitOfWork unitOfWork, IMapper mapper) : IAddressSe
     public async Task<ServiceResponse> AddAsync(CreateAddress address)
     {
         var entity = mapper.Map<Address>(address);
-        await unitOfWork.Addresses.AddAsync(entity);
+        unitOfWork.Addresses.AddAsync(entity);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -37,7 +37,7 @@ public class AddressService(IUnitOfWork unitOfWork, IMapper mapper) : IAddressSe
         var existing = await unitOfWork.Addresses.GetByIdAsync(id);
 
         mapper.Map(address, existing);
-        await unitOfWork.Addresses.UpdateAsync(existing);
+        if (existing != null) unitOfWork.Addresses.UpdateAsync(existing);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -49,7 +49,7 @@ public class AddressService(IUnitOfWork unitOfWork, IMapper mapper) : IAddressSe
     {
         var existing = await unitOfWork.Addresses.GetByIdAsync(id);
 
-        await unitOfWork.Addresses.DeleteAsync(existing.AddressId);
+        if (existing != null) unitOfWork.Addresses.DeleteAsync(existing.AddressId);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0

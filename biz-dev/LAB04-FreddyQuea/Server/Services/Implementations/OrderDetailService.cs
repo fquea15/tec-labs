@@ -24,7 +24,7 @@ public class OrderDetailService(IUnitOfWork unitOfWork, IMapper mapper) : IOrder
     public async Task<ServiceResponse> AddAsync(CreateOrderDetail orderDetail)
     {
         var entity = mapper.Map<OrderDetail>(orderDetail);
-        await unitOfWork.OrderDetails.AddAsync(entity);
+        unitOfWork.OrderDetails.AddAsync(entity);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -37,7 +37,7 @@ public class OrderDetailService(IUnitOfWork unitOfWork, IMapper mapper) : IOrder
         var existing = await unitOfWork.OrderDetails.GetByIdAsync(id);
 
         mapper.Map(orderDetail, existing);
-        await unitOfWork.OrderDetails.UpdateAsync(existing);
+        if (existing != null) unitOfWork.OrderDetails.UpdateAsync(existing);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -49,7 +49,7 @@ public class OrderDetailService(IUnitOfWork unitOfWork, IMapper mapper) : IOrder
     {
         var existing = await unitOfWork.OrderDetails.GetByIdAsync(id);
 
-        await unitOfWork.OrderDetails.DeleteAsync(existing.OrderDetailId);
+        if (existing != null) unitOfWork.OrderDetails.DeleteAsync(existing.OrderDetailId);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0

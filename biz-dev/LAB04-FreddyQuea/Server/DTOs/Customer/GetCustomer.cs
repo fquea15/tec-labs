@@ -2,7 +2,7 @@
 
 namespace Server.DTOs.Customer;
 
-public class GetCustomer : ProductBase
+public class GetCustomer : CustomerBase
 {
     public int CustomerId { get; set; }
 }

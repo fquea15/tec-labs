@@ -31,7 +31,7 @@ public partial class Product
     public string? ImgUrl { get; set; }
 
     [Column("category_id")]
-    public int? CategoryId { get; set; }
+    public int CategoryId { get; set; }
 
     [Column("created_at", TypeName = "timestamp without time zone")]
     public DateTime? CreatedAt { get; set; }

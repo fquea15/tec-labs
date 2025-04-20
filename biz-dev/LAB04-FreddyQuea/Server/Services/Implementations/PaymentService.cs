@@ -24,7 +24,7 @@ public class PaymentService(IUnitOfWork unitOfWork, IMapper mapper) : IPaymentSe
     public async Task<ServiceResponse> AddAsync(CreatePayment payment)
     {
         var entity = mapper.Map<Payment>(payment);
-        await unitOfWork.Payments.AddAsync(entity);
+        unitOfWork.Payments.AddAsync(entity);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -37,7 +37,7 @@ public class PaymentService(IUnitOfWork unitOfWork, IMapper mapper) : IPaymentSe
         var existing = await unitOfWork.Payments.GetByIdAsync(id);
 
         mapper.Map(payment, existing);
-        await unitOfWork.Payments.UpdateAsync(existing);
+        if (existing != null) unitOfWork.Payments.UpdateAsync(existing);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -49,7 +49,7 @@ public class PaymentService(IUnitOfWork unitOfWork, IMapper mapper) : IPaymentSe
     {
         var existing = await unitOfWork.Payments.GetByIdAsync(id);
 
-        await unitOfWork.Payments.DeleteAsync(existing.PaymentId);
+        if (existing != null) unitOfWork.Payments.DeleteAsync(existing.PaymentId);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0

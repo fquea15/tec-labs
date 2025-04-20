@@ -2,5 +2,5 @@
 
 public class GetAddress : AddressBase
 {
-    public int Address { get; set; }
+    public int AddressId { get; set; }
 }

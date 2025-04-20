@@ -12,7 +12,15 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductSe
     public async Task<IEnumerable<GetProduct>> GetAllAsync()
     {
         var products = await unitOfWork.Products.GetAllAsync();
-        return mapper.Map<IEnumerable<GetProduct>>(products);
+        var result = mapper.Map<List<GetProduct>>(products);
+
+        foreach (var item in result)
+        {
+            var category = await unitOfWork.Categories.GetByIdAsync(item.CategoryId);
+            if (category?.Name != null) item.CategoryName = category.Name;
+        }
+
+        return result;
     }
 
     public async Task<GetProduct> GetByIdAsync(int id)
@@ -24,7 +32,7 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductSe
     public async Task<ServiceResponse> AddAsync(CreateProduct product)
     {
         var mappedData = mapper.Map<Product>(product);
-        await unitOfWork.Products.AddAsync(mappedData);
+        unitOfWork.Products.AddAsync(mappedData);
         var saved = await unitOfWork.CompleteAsync();
         return saved > 0
             ? new ServiceResponse(true, "Producto creado correctamente.")
@@ -36,7 +44,7 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductSe
         var existing = await unitOfWork.Products.GetByIdAsync(id);
 
         mapper.Map(product, existing);
-        await unitOfWork.Products.UpdateAsync(existing);
+        if (existing != null) unitOfWork.Products.UpdateAsync(existing);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
@@ -48,7 +56,7 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductSe
     {
         var existing = await unitOfWork.Products.GetByIdAsync(id);
 
-        await unitOfWork.Products.DeleteAsync(existing.ProductId);
+        if (existing != null) unitOfWork.Products.DeleteAsync(existing.ProductId);
         var saved = await unitOfWork.CompleteAsync();
 
         return saved > 0
