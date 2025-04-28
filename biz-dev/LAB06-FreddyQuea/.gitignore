@@ -1,0 +1,10 @@
+﻿bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.idea
+
+#
+LAB06-FreddyQuea/Data/Migrations/
+project.lock.json
