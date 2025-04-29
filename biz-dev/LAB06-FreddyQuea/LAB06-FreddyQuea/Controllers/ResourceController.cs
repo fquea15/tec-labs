@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LAB06_FreddyQuea.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/resources")]
 public class ResourceController : ControllerBase
