@@ -1,165 +1,99 @@
 import pandas as pd
-import numpy as np
+from pathlib import Path
 
-# Ruta del archivo Excel - Ajusta esta ruta según la ubicación de tu archivo
-excel_file = "data/BI_Clientes06.xlsx"
+class DataProcessor:
+  def __init__(self, input_file: str, output_dir: str = "output"):
+    self.input_file = input_file
+    self.output_dir = Path(output_dir)
+    self.data = None
+    self._setup_output_directory()
 
-def load_data(file_path):
-    """
-    Carga datos desde un archivo Excel
-    """
+  def _setup_output_directory(self) -> None:
+    self.output_dir.mkdir(parents=True, exist_ok=True)
+
+  def load_data(self) -> None:
+    print("="*50)
+    print(f"Iniciando carga de datos desde {self.input_file}...")
     try:
-        df = pd.read_excel(file_path)
-        print("Datos originales cargados correctamente")
-        print("Forma de los datos:", df.shape)
-        print("Muestra de los datos originales:")
-        print(df.head())
-        return df
+      self.data = pd.read_excel(self.input_file)
+      print("Archivo cargado exitosamente.")
+      print(f"Dimensiones del archivo: {self.data.shape[0]} filas, {self.data.shape[1]} columnas")
+      print(f"Columnas disponibles: {list(self.data.columns)}")
+    except FileNotFoundError:
+      raise FileNotFoundError(f"El archivo {self.input_file} no se encontró.")
     except Exception as e:
-        print(f"Error al leer el archivo Excel: {e}")
-        return None
+      raise Exception(f"Error al leer el archivo: {str(e)}")
+    print("="*50)
 
-def analyze_null_values(df):
-    """
-    Analiza los valores nulos en el dataframe
-    """
-    print("\nValores nulos en cada columna:")
-    print(df.isnull().sum())
-    return df.isnull().sum()
+  def activity_1(self) -> None:
+    print("\nIniciando Actividad 1: Selección y limpieza de columnas específicas")
+    selected_columns = ['CustomerKey', 'FirstName', 'TotalChildren']
+    df_subset = self.data[selected_columns].copy()
+    print(f"Columnas seleccionadas: {selected_columns}")
+    df_clean = df_subset.dropna()
+    output_path = self.output_dir / 'Activity_1_Cleaned.xlsx'
+    df_clean.to_excel(output_path, index=False)
+    print(f"Actividad 1 completada. Archivo exportado a: {output_path}")
+    print(f"Filas originales: {len(df_subset)}, Filas después de limpiar: {len(df_clean)}")
 
-# 1. Lea las columnas CustomerKey, FirstName y TotalChildren del
-#    archivo BI_Clientes06.xlsx, elimine los registros perdidos (nulos) y exporte la
-#    data limpia a otro archivo de Excel
-def task1(df):
-    print("\n--- Tarea 1: Eliminar registros perdidos en columnas específicas ---")
-    # Seleccionar las columnas requeridas
-    task1_df = df[['CustomerKey', 'FirstName', 'TotalChildren']].copy()
+  def activity_2(self) -> None:
+    print("\nIniciando Actividad 2: Eliminación de filas totalmente vacías")
+    selected_columns = ['CustomerKey', 'FirstName', 'TotalChildren']
+    df_subset = self.data[selected_columns].copy()
+    print(f"Columnas seleccionadas: {selected_columns}")
+    df_clean = df_subset.dropna(how='all')
+    output_path = self.output_dir / 'Activity_2_Cleaned.xlsx'
+    df_clean.to_excel(output_path, index=False)
+    print(f"Actividad 2 completada. Archivo exportado a: {output_path}")
+    print(f"Filas originales: {len(df_subset)}, Filas después de limpiar: {len(df_clean)}")
 
-    # Eliminar las filas que tienen algún valor nulo en las columnas seleccionadas
-    task1_df_clean = task1_df.dropna()
+  def activity_3(self) -> None:
+    print("\nIniciando Actividad 3: Imputación de valores faltantes con la media")
+    df_copy = self.data.copy()
+    total_children_mean = df_copy['TotalChildren'].mean()
+    print(f"Media calculada de 'TotalChildren': {total_children_mean:.2f}")
+    df_copy['TotalChildren'] = df_copy['TotalChildren'].fillna(total_children_mean)
+    output_path = self.output_dir / 'Activity_3_Cleaned.xlsx'
+    df_copy.to_excel(output_path, index=False)
+    print(f"Actividad 3 completada. Archivo exportado a: {output_path}")
+    missing_after = df_copy['TotalChildren'].isnull().sum()
+    print(f"Valores faltantes en 'TotalChildren' después de imputar: {missing_after}")
 
-    print(f"Forma original: {task1_df.shape}, Forma después de limpieza: {task1_df_clean.shape}")
-    print("Filas eliminadas:", task1_df.shape[0] - task1_df_clean.shape[0])
+  def activity_4(self) -> None:
+    print("\nIniciando Actividad 4: Análisis y eliminación de duplicados")
+    print("\nResumen de valores faltantes:")
+    missing_values = self.data.isnull().sum()
+    print(missing_values[missing_values > 0])
 
-    # Exportar a Excel
-    task1_df_clean.to_excel("Task1_Clean_Data.xlsx", index=False)
-    print("Datos limpios exportados a 'Task1_Clean_Data.xlsx'")
+    duplicated_count = self.data.duplicated().sum()
+    print(f"\nCantidad de filas duplicadas encontradas: {duplicated_count}")
 
-    print("Muestra de datos limpios:")
-    print(task1_df_clean.head())
+    print("\nTop 5 clientes más frecuentes:")
+    customer_counts = self.data['CustomerKey'].value_counts()
+    print(customer_counts.head())
 
-    return task1_df_clean
+    df_clean = self.data.drop_duplicates()
+    output_path = self.output_dir / 'Activity_4_Cleaned.xlsx'
+    df_clean.to_excel(output_path, index=False)
+    print(f"\nActividad 4 completada. Archivo exportado a: {output_path}")
+    print(f"Filas originales: {len(self.data)}, Filas después de eliminar duplicados: {len(df_clean)}")
 
-# 2. Lea las columnas CustomerKey, FirstName y TotalChildren del
-#    archivo BI_Clientes06.xlsx, elimine las filas de todos los datos perdidos
-#    ubicados en una sola columna y exporte la data limpia a otro archivo de Excel
-def task2(df):
-    print("\n--- Tarea 2: Eliminar filas con valores perdidos en una columna ---")
-    # Seleccionar las columnas requeridas
-    task2_df = df[['CustomerKey', 'FirstName', 'TotalChildren']].copy()
+  def run_all_activities(self) -> None:
+    print("\nIniciando procesamiento completo de actividades...")
+    self.load_data()
+    try:
+      #self.activity_1()
+      #self.activity_2()
+      #self.activity_3()
+      self.activity_4()
+      print("\nProcesamiento de datos completado exitosamente.")
+    except Exception as e:
+      print(f"Error durante la ejecución de las actividades: {str(e)}")
 
-    # Mostrar valores nulos antes de la limpieza
-    print("Valores nulos antes de la limpieza:")
-    print(task2_df.isnull().sum())
-
-    # Eliminar las filas donde la columna 'TotalChildren' tiene valores nulos
-    task2_df_clean = task2_df.dropna(subset=['TotalChildren'])
-
-    print(f"Forma original: {task2_df.shape}, Forma después de limpieza: {task2_df_clean.shape}")
-    print("Filas eliminadas:", task2_df.shape[0] - task2_df_clean.shape[0])
-
-    # Exportar a Excel
-    task2_df_clean.to_excel("Task2_Clean_Data.xlsx", index=False)
-    print("Datos limpios exportados a 'Task2_Clean_Data.xlsx'")
-
-    print("Muestra de datos limpios:")
-    print(task2_df_clean.head())
-
-    return task2_df_clean
-
-# 3. Lea el archivo BI_Clientes06.xlsx. Calcule la media del campo
-#    TotalChildren y reemplace este dato a los registros nulos. Exporte la data
-#    limpia a otro Excel
-def task3(df):
-    print("\n--- Tarea 3: Reemplazar valores nulos con la media ---")
-    # Crear una copia del dataframe
-    task3_df = df.copy()
-
-    # Calcular la media de la columna 'TotalChildren'
-    mean_total_children = task3_df['TotalChildren'].mean()
-    print(f"Media de TotalChildren: {mean_total_children}")
-
-    # Reemplazar los valores nulos en 'TotalChildren' con la media
-    task3_df['TotalChildren'].fillna(mean_total_children, inplace=True)
-
-    # Verificar que no queden valores nulos en 'TotalChildren'
-    print("Valores nulos en TotalChildren después del reemplazo:",
-          task3_df['TotalChildren'].isnull().sum())
-
-    # Exportar a Excel
-    task3_df.to_excel("Task3_Clean_Data.xlsx", index=False)
-    print("Datos limpios exportados a 'Task3_Clean_Data.xlsx'")
-
-    print("Muestra de datos limpios:")
-    print(task3_df[['CustomerKey', 'FirstName', 'TotalChildren']].head())
-
-    return task3_df
-
-# 4. Lea el archivo BI_Clientes06.xlsx. Resumir los valores perdidos
-#    totales, obtener los valores duplicados, imprimir la cantidad de veces que un
-#    cliente aparece en la data y elimine los valores duplicados. Exporte la data
-#    limpia a otro Excel
-def task4(df):
-    print("\n--- Tarea 4: Análisis de valores perdidos y duplicados ---")
-
-    # Resumir los valores perdidos totales por columna
-    print("\nTotal de valores perdidos por columna:")
-    print(df.isnull().sum())
-    print(f"Total de valores perdidos en el dataset: {df.isnull().sum().sum()}")
-
-    # Identificar filas duplicadas
-    duplicate_rows = df.duplicated()
-    print(f"\nNúmero de filas duplicadas: {duplicate_rows.sum()}")
-
-    # Contar las ocurrencias de cada 'CustomerKey'
-    customer_counts = df['CustomerKey'].value_counts()
-    print("\nNúmero de apariciones para cada cliente:")
-    for customer, count in customer_counts.items():
-        if count > 1:  # Mostrar solo los que aparecen más de una vez
-            print(f"Cliente {customer}: {count} veces")
-
-    # Eliminar filas duplicadas
-    task4_df_clean = df.drop_duplicates()
-    print(f"\nForma original: {df.shape}, Después de eliminar duplicados: {task4_df_clean.shape}")
-
-    # Exportar a Excel
-    task4_df_clean.to_excel("Task4_Clean_Data.xlsx", index=False)
-    print("Datos limpios exportados a 'Task4_Clean_Data.xlsx'")
-
-    print("Muestra de datos limpios (después de eliminar duplicados):")
-    print(task4_df_clean.head())
-
-    return task4_df_clean
 
 def main():
-    """
-    Función principal para ejecutar todas las tareas
-    """
-    # Load the data
-    df = load_data(excel_file)
-    if df is None:
-        return
-
-    # Analyze null values in the original dataframe
-    analyze_null_values(df)
-
-    # Execute all tasks
-    print("\nEjecutando todas las tareas...")
-    task1_result = task1(df.copy()) # Pass a copy to avoid modifying the original DataFrame
-    task2_result = task2(df.copy()) # Pass a copy to avoid modifying the original DataFrame
-    task3_result = task3(df.copy()) # Pass a copy to avoid modifying the original DataFrame
-    task4_result = task4(df.copy()) # Pass a copy to avoid modifying the original DataFrame
-    print("\n¡Todas las tareas completadas con éxito!")
+  processor = DataProcessor(input_file='data/BI_Clientes06.xlsx', output_dir='output')
+  processor.run_all_activities()
 
 if __name__ == "__main__":
-    main()
+  main()
