@@ -1,4 +1,6 @@
-﻿namespace Lab11.Domain.Entities;
+﻿using Lab11.Domain.Enums;
+
+namespace Lab11.Domain.Entities;
 
 public partial class Ticket
 {
@@ -10,7 +12,7 @@ public partial class Ticket
 
     public string? Description { get; set; }
 
-    public string Status { get; set; } = null!;
+    public TicketStatus Status { get; set; } = TicketStatus.Abierto;
 
     public DateTime? CreatedAt { get; set; }
 

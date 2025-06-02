@@ -1,6 +1,6 @@
-using Lab10.Persistence.Configuration;
+using Lab11.Persistence.Configuration;
 
-namespace Lab10.Persistence;
+namespace Lab11.Persistence;
 
 public static class Program
 {

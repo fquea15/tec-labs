@@ -1,5 +1,7 @@
 ﻿using Lab11.Domain.Entities;
+using Lab11.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lab11.Infrastructure.Context;
 
@@ -22,6 +24,16 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var ticketStatusConverter = new ValueConverter<TicketStatus, string>(
+            v => v == TicketStatus.Abierto ? "abierto" :
+                v == TicketStatus.EnProceso ? "en_proceso" :
+                v == TicketStatus.Cerrado ? "cerrado" :
+                "abierto",
+            v => v == "abierto" ? TicketStatus.Abierto :
+                v == "en_proceso" ? TicketStatus.EnProceso :
+                v == "cerrado" ? TicketStatus.Cerrado :
+                TicketStatus.Abierto);
+
         modelBuilder.HasPostgresExtension("pgcrypto");
 
         modelBuilder.Entity<Response>(entity =>
@@ -86,6 +98,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
+                .HasConversion(ticketStatusConverter)
                 .HasColumnName("status");
             entity.Property(e => e.Title)
                 .HasMaxLength(255)

@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab11.Application", " Lab11
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab11.Infrastructure", "Lab11.Infrastructure\Lab11.Infrastructure.csproj", "{D484F2B4-6CD9-4871-AAB6-41E5B2A94F35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab10.Persistence", "Lab10.Persistence\Lab10.Persistence.csproj", "{C3B14799-6980-4FB3-913A-8C088E2C7000}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab11.Persistence", "Lab11.Persistence\Lab11.Persistence.csproj", "{C3B14799-6980-4FB3-913A-8C088E2C7000}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

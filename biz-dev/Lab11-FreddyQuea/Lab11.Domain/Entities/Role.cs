@@ -1,10 +1,12 @@
-﻿namespace Lab11.Domain.Entities;
+﻿using Lab11.Domain.Enums;
+
+namespace Lab11.Domain.Entities;
 
 public partial class Role
 {
     public Guid RoleId { get; set; }
 
-    public string RoleName { get; set; } = null!;
+    public RoleType RoleName { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }
